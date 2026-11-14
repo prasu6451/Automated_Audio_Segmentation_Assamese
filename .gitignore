@@ -1,2 +1,5 @@
 Male_Audio/
 Female_Audio/
+__pycache__/
+*.pyc
+tests/_tmp24.wav

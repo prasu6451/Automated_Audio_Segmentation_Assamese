@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Automated Audio Segmentation – Detecting Sentence/Word Boundaries in Assamese Speech</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect rx='6' width='32' height='32' fill='%231d4ed8'/%3E%3Cpath d='M6 16h2v-4h2v8H8v-4H6zm6 4V8h2v12zm4-7v2h6v-2zm0 5v2h6v-2z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+  <div class="poster-container">
+    <!-- Top Poster Banner -->
+    <header class="poster-banner">
+      <div class="banner-soundwave left" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="banner-title-box">
+        <h1>Automated Audio Segmentation – Detecting Sentence/Word Boundaries in <span class="highlight-yellow">Assamese Speech</span></h1>
+        <p class="subtitle">A Web-based System for Sentence Boundary Detection and Audio Segmentation</p>
+      </div>
+      <div class="banner-soundwave right" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </header>
+
+    <!-- System Workflow Section -->
+    <section class="workflow-card">
+      <div class="card-badge workflow-badge">System Workflow</div>
+      <div class="workflow-grid" id="workflow">
+        <!-- 1. Audio Upload / Recording -->
+        <div class="wf-item wf-upload" data-stage="upload">
+          <div class="wf-icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <div class="wf-content">
+            <div class="wf-title">Audio Upload / Recording</div>
+            <div class="wf-sub">(Assamese Speech)</div>
+          </div>
+        </div>
+        <div class="wf-arrow">&rarr;</div>
+
+        <!-- 2. Audio Preprocessing -->
+        <div class="wf-item wf-preprocess" data-stage="preprocess">
+          <div class="wf-icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
+          <div class="wf-content">
+            <div class="wf-title">Audio Preprocessing</div>
+            <div class="wf-sub">(Noise Removal, Normalization, Framing)</div>
+          </div>
+        </div>
+        <div class="wf-arrow">&rarr;</div>
+
+        <!-- 3. Voice Activity Detection (VAD) -->
+        <div class="wf-item wf-vad" data-stage="vad">
+          <div class="wf-icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2m3-6v12m3-9v6m3-11v16m3-13v10m3-7v4m3-3h2"/><circle cx="18" cy="18" r="4"/><path d="m21 21 2 2"/></svg>
+          </div>
+          <div class="wf-content">
+            <div class="wf-title">Voice Activity Detection (VAD)</div>
+            <div class="wf-sub">(Detect Speech &amp; Silence Regions)</div>
+          </div>
+        </div>
+        <div class="wf-arrow">&rarr;</div>
+
+        <!-- 4. Acoustic Feature Extraction -->
+        <div class="wf-item wf-features" data-stage="features">
+          <div class="wf-features-header">Acoustic Feature Extraction</div>
+          <div class="wf-subfeatures-grid">
+            <div class="subfeat-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10v4m4-8v12m4-14v16m4-10v4m4-6v8"/></svg>
+              <span>MFCC</span>
+            </div>
+            <div class="subfeat-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="4" cy="16" r="2"/><circle cx="12" cy="8" r="2"/><circle cx="20" cy="12" r="2"/><path d="M6 15l4-5 4 3 4-2"/></svg>
+              <span>Pitch (F0)</span>
+            </div>
+            <div class="subfeat-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>Short-Time Energy (STE)</span>
+            </div>
+            <div class="subfeat-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18l16-12M4 6l16 12"/></svg>
+              <span>Zero-Crossing Rate (ZCR)</span>
+            </div>
+          </div>
+        </div>
+        <div class="wf-arrow">&rarr;</div>
+
+        <!-- 5. Sentence Boundary Detection -->
+        <div class="wf-item wf-boundary" data-stage="boundaries">
+          <div class="wf-icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="3"/><circle cx="12" cy="5" r="3"/><circle cx="19" cy="12" r="3"/><circle cx="12" cy="19" r="3"/><path d="M7.5 10.5l3-3m3 3l3-3m-3 9l3-3m-9 0l3 3"/></svg>
+          </div>
+          <div class="wf-content">
+            <div class="wf-title">Sentence Boundary Detection</div>
+            <div class="wf-sub">(Pause Duration, Acoustic Patterns, Speech Cues)</div>
+          </div>
+        </div>
+        <div class="wf-arrow">&rarr;</div>
+
+        <!-- 6. Audio Segmentation & Output -->
+        <div class="wf-item wf-output" data-stage="visualize">
+          <div class="wf-icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+          </div>
+          <div class="wf-content">
+            <div class="wf-title">Audio Segmentation &amp; Output</div>
+            <div class="wf-sub">(Sentence-level Clips with Timestamps)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Workspace Layout -->
+    <div class="main-body-layout">
+      <!-- Left Column: Major Implementation Modules -->
+      <aside class="modules-column">
+        <div class="card-badge modules-badge">Major Implementation Modules</div>
+        <ol class="module-list" id="module-list">
+          <li data-stage="upload" class="active">
+            <div class="mod-num-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+              <span>1</span>
+            </div>
+            <div class="mod-text">
+              <strong>Assamese Audio Upload and Recording</strong>
+            </div>
+          </li>
+          <li data-stage="preprocess">
+            <div class="mod-num-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>2</span>
+            </div>
+            <div class="mod-text">
+              <strong>Audio Preprocessing</strong>
+            </div>
+          </li>
+          <li data-stage="vad">
+            <div class="mod-num-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2m3-6v12m3-9v6m3-11v16m3-13v10m3-7v4m3-3h2"/></svg>
+              <span>3</span>
+            </div>
+            <div class="mod-text">
+              <strong>Voice Activity Detection (VAD)</strong>
+            </div>
+          </li>
+          <li data-stage="features">
+            <div class="mod-num-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span>4</span>
+            </div>
+            <div class="mod-text">
+              <strong>Acoustic Feature Extraction</strong>
+            </div>
+          </li>
+          <li data-stage="boundaries">
+            <div class="mod-num-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+              <span>5</span>
+            </div>
+            <div class="mod-text">
+              <strong>Sentence Boundary Detection and Audio Segmentation</strong>
+            </div>
+          </li>
+          <li data-stage="visualize">
+            <div class="mod-num-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <span>6</span>
+            </div>
+            <div class="mod-text">
+              <strong>Audio Visualization and Interactive Dashboard</strong>
+            </div>
+          </li>
+        </ol>
+      </aside>
+
+      <!-- Center & Right: Dashboard Card Window -->
+      <section class="dashboard-window">
+        <!-- Top App Navbar -->
+        <div class="app-header">
+          <div class="app-brand">
+            <div class="brand-wave" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <h2>Assamese Audio Segmentation System</h2>
+          </div>
+          <nav class="app-nav">
+            <button type="button" class="app-nav-btn" data-view="home">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Home</span>
+            </button>
+            <button type="button" class="app-nav-btn active" data-view="work">
+              <span>Segmentation</span>
+            </button>
+            <button type="button" class="app-nav-btn" data-view="results">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span>Results</span>
+            </button>
+            <button type="button" class="app-nav-btn" data-view="about">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span>About</span>
+            </button>
+          </nav>
+        </div>
+
+        <div id="alert" class="alert" hidden></div>
+
+        <!-- Dashboard Views -->
+        <div class="app-views-wrap">
+          <!-- View: Segmentation Work Area -->
+          <div id="view-work" class="dashboard-grid">
+            <!-- Col 1: Left Controls -->
+            <div class="dash-col dash-left">
+              <!-- Input Audio Card -->
+              <div class="dash-panel input-audio-panel">
+                <h3 class="panel-title">Input Audio</h3>
+                <div class="upload-record-row">
+                  <label class="btn-upload">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span>Upload Audio</span>
+                    <input id="file-input" type="file" accept=".wav,audio/wav,audio/x-wav">
+                  </label>
+                  <button type="button" class="btn-record" id="record-btn">
+                    <span class="record-dot"></span>
+                    <span>Record</span>
+                  </button>
+                </div>
+
+                <!-- Loaded Audio Chip -->
+                <div class="audio-file-chip" id="audio-chip">
+                  <div class="chip-info">
+                    <svg class="music-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                    <span id="chip-name" class="chip-text">assamese_speech.wav (00:26.80)</span>
+                  </div>
+                  <button type="button" class="chip-remove" id="chip-clear" title="Remove or reset file">&times;</button>
+                </div>
+
+                <!-- Dataset Accordion / Selector -->
+                <details class="dataset-accordion">
+                  <summary>Select from Assamese Studio Dataset</summary>
+                  <div class="dataset-picker-body">
+                    <div class="picker-row">
+                      <label>Speaker:
+                        <select id="speaker">
+                          <option value="female">Female</option>
+                          <option value="male">Male</option>
+                        </select>
+                      </label>
+                      <button type="button" class="btn-mini" id="use-reel">4-Clip Reel</button>
+                    </div>
+                    <label>Clip:
+                      <select id="clip"></select>
+                    </label>
+                    <button type="button" class="btn-mini full-width" id="use-clip">Load Selected Clip</button>
+                    <button type="button" class="btn-mini full-width sample-btn" id="use-sample">Load Default Assamese Demo</button>
+                  </div>
+                </details>
+              </div>
+
+              <!-- Segmentation Settings Card -->
+              <div class="dash-panel settings-panel">
+                <h3 class="panel-title">Segmentation Settings</h3>
+                
+                <div class="setting-field">
+                  <label for="vad-method">VAD Method</label>
+                  <div class="select-wrap">
+                    <select id="vad-method">
+                      <option value="energy_spectral" selected>WebRTC (Energy + Spectral)</option>
+                      <option value="energy">Energy only</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="setting-field">
+                  <label for="min-pause">Min Pause Duration (s)</label>
+                  <input id="min-pause" type="number" min="0.05" max="2.00" step="0.05" value="0.50">
+                </div>
+
+                <div class="setting-field">
+                  <label for="decision">Boundary Decision</label>
+                  <div class="select-wrap">
+                    <select id="decision">
+                      <option value="features" selected>Rule-based (Pause + Features)</option>
+                      <option value="pause">Pause Duration Only</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="setting-field check-field">
+                  <label class="check-label">
+                    <input id="use-features" type="checkbox" checked>
+                    <span>Use Acoustic Features (MFCC, Pitch, STE, ZCR)</span>
+                  </label>
+                </div>
+
+                <div class="setting-field check-field" style="display:none;">
+                  <label class="check-label">
+                    <input id="denoise" type="checkbox" checked>
+                    <span>Noise Removal</span>
+                  </label>
+                  <select id="target" style="display:none;"><option value="sentence" selected>Sentence</option><option value="word">Word</option></select>
+                </div>
+
+                <button type="button" class="btn-run-segmentation" id="run-btn">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <span>Run Segmentation</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Col 2: Center Visualizer -->
+            <div class="dash-col dash-center">
+              <div class="center-content-card">
+                <!-- Visualizer Tabs -->
+                <div class="viz-tabs" role="tablist">
+                  <button type="button" class="viz-tab active" data-tab="wave">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2m3-6v12m3-9v6m3-11v16m3-13v10m3-7v4m3-3h2"/></svg>
+                    <span>Waveform &amp; Spectrogram</span>
+                  </button>
+                  <button type="button" class="viz-tab" data-tab="features">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <span>Features</span>
+                  </button>
+                  <button type="button" class="viz-tab" data-tab="segments">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    <span>Segments</span>
+                  </button>
+                  <button type="button" class="viz-tab" data-tab="edit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <span>Manual Edit</span>
+                  </button>
+                </div>
+
+                <!-- Manual Edit Toolbar -->
+                <div id="edit-tools" class="edit-tools-panel" hidden>
+                  <div class="edit-btns-group">
+                    <button type="button" class="btn-action" id="split-btn">Split at Playhead</button>
+                    <button type="button" class="btn-action" id="merge-btn">Merge with Next</button>
+                    <button type="button" class="btn-action" id="delete-btn">Delete Segment</button>
+                    <button type="button" class="btn-action" id="undo-btn">Undo</button>
+                  </div>
+                  <div class="edit-fields-group">
+                    <label>Start: <input id="edit-start" type="number" step="0.01" min="0"></label>
+                    <label>End: <input id="edit-end" type="number" step="0.01" min="0"></label>
+                    <button type="button" class="btn-mini" id="apply-times">Apply</button>
+                  </div>
+                </div>
+
+                <!-- Main Plots Container -->
+                <div class="plots-container">
+                  <!-- Waveform Section -->
+                  <div class="canvas-panel waveform-panel">
+                    <div class="plot-header-badge">Waveform</div>
+                    <canvas id="wave" class="wave-canvas" height="150" aria-label="Waveform with segment boundaries"></canvas>
+                  </div>
+
+                  <!-- Spectrogram Section -->
+                  <div class="canvas-panel spectrogram-panel" id="panel-wave">
+                    <div class="plot-header-badge">Spectrogram</div>
+                    <canvas id="spec" class="spec-canvas" height="130" aria-label="Spectrogram"></canvas>
+                  </div>
+
+                  <!-- 4 Mini Feature Charts Row -->
+                  <div class="features-quad-row" id="features-quad-row">
+                    <div class="feature-chart-box">
+                      <div class="chart-header">STE</div>
+                      <canvas id="chart-ste" height="100"></canvas>
+                    </div>
+                    <div class="feature-chart-box">
+                      <div class="chart-header">Pitch (F0)</div>
+                      <canvas id="chart-f0" height="100"></canvas>
+                    </div>
+                    <div class="feature-chart-box">
+                      <div class="chart-header">ZCR</div>
+                      <canvas id="chart-zcr" height="100"></canvas>
+                    </div>
+                    <div class="feature-chart-box">
+                      <div class="chart-header">MFCC (C1)</div>
+                      <canvas id="chart-mfcc" height="100"></canvas>
+                    </div>
+                  </div>
+
+                  <!-- Expanded Features Panel (when features tab is active) -->
+                  <div id="panel-features" class="expanded-features-panel" hidden>
+                    <p class="panel-hint">Detailed feature curves for energy, pitch, zero-crossing rate, and spectral shape.</p>
+                  </div>
+
+                  <!-- Segments Timeline Panel -->
+                  <div id="panel-segments" class="segments-timeline-panel" hidden>
+                    <div id="timeline" class="timeline-bar"></div>
+                    <p class="panel-hint">Click a segment to jump and preview that specific Assamese speech span.</p>
+                  </div>
+                </div>
+
+                <!-- Bottom Audio Player & Export Bar -->
+                <div class="player-export-bar">
+                  <div class="player-controls">
+                    <button type="button" class="btn-play-round" id="play-btn" aria-label="Play or pause">
+                      <svg id="play-icon-svg" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    </button>
+                    <span id="time-label" class="time-readout">0:00 / 0:26.80</span>
+                    <div class="seek-wrap">
+                      <input id="seek" type="range" min="0" max="1000" value="0" aria-label="Seek track">
+                    </div>
+                    <div class="volume-wrap">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                      <input id="volume" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume">
+                    </div>
+                  </div>
+                  <div class="export-actions">
+                    <button type="button" class="btn-export" id="export-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      <span>Export Segments</span>
+                    </button>
+                    <button type="button" class="btn-download-csv" id="csv-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                      <span>Download Results (CSV)</span>
+                    </button>
+                  </div>
+                </div>
+                <audio id="player" preload="auto"></audio>
+                <div id="drop-zone" class="drop-zone" style="display:none;">Drop a WAV file here</div>
+              </div>
+            </div>
+
+            <!-- Col 3: Right Results -->
+            <div class="dash-col dash-right">
+              <!-- Detected Segments Card -->
+              <div class="dash-panel detected-segments-panel">
+                <div class="panel-header-row">
+                  <h3 class="panel-title">Detected Segments (Assamese)</h3>
+                  <span id="segment-count" class="pill-count">4</span>
+                </div>
+                <div class="table-scroll-wrap">
+                  <table class="segments-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Start (s)</th>
+                        <th>End (s)</th>
+                        <th>Duration (s)</th>
+                        <th>Detected Sentence (Assamese)</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="segment-body">
+                      <!-- Rendered by JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Evaluation Card -->
+              <div class="dash-panel evaluation-panel">
+                <div class="panel-header-row">
+                  <div class="eval-title-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    <h3 class="panel-title">Evaluation (Boundary Detection)</h3>
+                  </div>
+                </div>
+
+                <div class="metrics-cards-grid">
+                  <div class="metric-card">
+                    <span class="m-label">Precision</span>
+                    <strong class="m-value" id="m-precision">0.94</strong>
+                  </div>
+                  <div class="metric-card">
+                    <span class="m-label">Recall</span>
+                    <strong class="m-value" id="m-recall">0.92</strong>
+                  </div>
+                  <div class="metric-card">
+                    <span class="m-label">F1-Score</span>
+                    <strong class="m-value" id="m-f1">0.93</strong>
+                  </div>
+                  <div class="metric-card">
+                    <span class="m-label">R-Val</span>
+                    <strong class="m-value" id="m-rval">0.95</strong>
+                  </div>
+                </div>
+
+                <details class="ref-eval-details">
+                  <summary>Custom Reference CSV &amp; Tolerance</summary>
+                  <div class="ref-eval-body">
+                    <label>Reference CSV:
+                      <input id="reference" type="file" accept=".csv,text/csv,.txt">
+                    </label>
+                    <label>Tolerance (s):
+                      <input id="tolerance" type="number" min="0.02" max="1.5" step="0.01" value="0.25">
+                    </label>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other Views -->
+          <div id="view-home" class="aux-view card" hidden>
+            <h2>Start from the Assamese Dataset</h2>
+            <p class="lead">Select a 4-clip reel or single utterance from the Assamese speech dataset. Studio recordings are resampled to 16 kHz and segmented.</p>
+            <div class="home-grid">
+              <article>
+                <p class="speaker">Female Speaker</p>
+                <p class="count" id="female-count">— recordings</p>
+                <button type="button" class="btn-run-segmentation" id="home-female">Segment 4-Clip Female Reel</button>
+              </article>
+              <article>
+                <p class="speaker">Male Speaker</p>
+                <p class="count" id="male-count">— recordings</p>
+                <button type="button" class="btn-run-segmentation" id="home-male">Segment 4-Clip Male Reel</button>
+              </article>
+            </div>
+          </div>
+
+          <div id="view-results" class="aux-view card" hidden>
+            <h2>Boundary Detection Results &amp; Logs</h2>
+            <p id="results-blurb" class="lead">Execution log, speech/pause ratios, and evaluation details.</p>
+            <div id="results-log" class="log-block"></div>
+          </div>
+
+          <div id="view-about" class="aux-view card" hidden>
+            <h2>About the Assamese Audio Segmentation System</h2>
+            <div class="about-grid">
+              <section>
+                <h3>1. Preprocessing</h3>
+                <p>Mixed to mono, resampled to 16 kHz, 80 Hz high-pass filtered, spectral noise reduction, and peak/RMS normalization.</p>
+              </section>
+              <section>
+                <h3>2. Voice Activity Detection (VAD)</h3>
+                <p>Framed at 25 ms with 10 ms step. Dual-criterion energy and spectral shape (centroid and flatness) classifies speech regions.</p>
+              </section>
+              <section>
+                <h3>3. Acoustic Feature Extraction</h3>
+                <p>Extracts short-time energy (STE), zero-crossing rate (ZCR), autocorrelation fundamental frequency Pitch (F0), and 13 MFCCs.</p>
+              </section>
+              <section>
+                <h3>4. Boundary Detection</h3>
+                <p>Detects sentence boundaries using pause duration thresholds reinforced by acoustic cues (pitch reset, energy drop, spectral rise).</p>
+              </section>
+              <section>
+                <h3>5. Evaluation</h3>
+                <p>Scored against reference boundaries using Precision, Recall, F1-Score, and R-Value (Räsänen et al., 2009).</p>
+              </section>
+              <section>
+                <h3>6. Segmentation &amp; Export</h3>
+                <p>Interactive waveform &amp; spectrogram with manual editing, sentence transcription, and ZIP/CSV export.</p>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Bottom Expected Outcome Banner -->
+    <footer class="outcome-card">
+      <div class="outcome-left">
+        <div class="outcome-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <span>Expected Outcome</span>
+        </div>
+        <p class="outcome-text" id="outcome-text">
+          A functional web-based Assamese Audio Segmentation System capable of automatically identifying potential sentence boundaries in continuous Assamese speech, generating sentence-level audio segments with corresponding timestamps, and providing interactive waveform and spectrogram visualizations for reviewing and editing the detected boundaries.
+        </p>
+      </div>
+      <div class="outcome-icons" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h2m3-6v12m3-9v6m3-11v16m3-13v10m3-7v4m3-3h2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
